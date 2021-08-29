@@ -5,28 +5,28 @@ require('dotenv').config();
 const client = require('prom-client');
 
 // URLs
-const bitcoinishScanApiUrl = process.env.BITCOINISH_SCAN_BASE_URL
+const globalBlockbookEndpoint = process.env.BITCOINISH_BOCKBOOK_ENDPOINT
 const bitcoinishFullNodeUrl = process.env.BITCOINISH_FULLNODE_BASE_URL
 const bitcoinishJsonrpcToken = process.env.JSON_RPC_TOKEN
 // metrics
-const bitcoinishScanUpGauge = new client.Gauge({ name: 'bitcoinish_scan_up', help: 'if bitcoinishscan is accessible', labelNames: ['coin'] });
-const bitcoinishScanCurrentBlockGauge = new client.Gauge({ name: 'bitcoinish_scan_current_block', help: 'number of current block', labelNames: ['coin'] });
-const bitcoinishScanLastUpdateGauge = new client.Gauge({ name: 'bitcoinish_scan_last_update_seconds', help: 'number of latet block', labelNames: ['coin'] });
+const bitcoinishGlobalBlockbookUpGauge = new client.Gauge({ name: 'bitcoinish_global_blockbook_up', help: 'if global blockbook is accessible', labelNames: ['coin'] });
+const bitcoinishGlobalBlockbookCurrentBlockGauge = new client.Gauge({ name: 'bitcoinish_global_blockbook_current_block', help: 'number of current block on global blockbook', labelNames: ['coin'] });
+const bitcoinishGlobalBlockbookLastUpdateGauge = new client.Gauge({ name: 'bitcoinish_global_blockbook_last_update_seconds', help: 'last update from the global blockbook', labelNames: ['coin'] });
 const fullnodeUpGauge = new client.Gauge({ name: 'bitcoinish_fullnode_up', help: 'if fullNode is accessible', labelNames: ['coin'] });
 const fullnodeCurrentBlockGauge = new client.Gauge({ name: 'bitcoinish_fullnode_current_block', help: 'number of current block', labelNames: ['coin'] });
-const fullnodeLastUpdateGauge = new client.Gauge({ name: 'bitcoinish_fullnode_last_update_seconds', help: 'number of latest block', labelNames: ['coin'] });
-// get the latest bitcoinishScan block number
-async function updatebitcoinishScanMetrics(){
+const fullnodeLastUpdateGauge = new client.Gauge({ name: 'bitcoinish_fullnode_last_update_seconds', help: 'last update from the node', labelNames: ['coin'] });
+// get the latest global blockbook block number
+async function updatebitcoinishGlobalBlockbookMetrics(){
     try{
-        const bitcoinishScanLatestBlock = await axios.get(bitcoinishScanApiUrl, {headers: {'user-agent':'phinix'}});
+        const latestBlock = await axios.get(globalBlockbookEndpoint, {headers: {'user-agent':'phinix'}});
         const coinName = process.env.COIN_NAME;
-        bitcoinishScanUpGauge.set({ coin: coinName } ,1);
-        bitcoinishScanCurrentBlockGauge.set({ coin: coinName } ,bitcoinishScanLatestBlock.data.backend.blocks);
-        bitcoinishScanLastUpdateGauge.set({ coin: coinName } ,Math.floor(Date.now() / 1000));
+        bitcoinishGlobalBlockbookUpGauge.set({ coin: coinName } ,1);
+        bitcoinishGlobalBlockbookCurrentBlockGauge.set({ coin: coinName } ,latestBlock.data.backend.blocks);
+        bitcoinishGlobalBlockbookLastUpdateGauge.set({ coin: coinName } ,Math.floor(Date.now() / 1000));
     }
     catch(err) {
         console.log(err);
-        bitcoinishScanUpGauge.set({ coin: process.env.COIN_NAME} ,0);
+        bitcoinishGlobalBlockbookUpGauge.set({ coin: process.env.COIN_NAME} ,0);
     }
 }
 
@@ -64,9 +64,8 @@ function delay(ms) {
 
 async function main(){
    while(true){
-       await Promise.all([updatebitcoinishScanMetrics(), updatebitcoinishFullNodeMetrics(), delay(process.env.REFRESH_INTERVAL_MILLISECONDS)]);
+       await Promise.all([updatebitcoinishGlobalBlockbookMetrics(), updatebitcoinishFullNodeMetrics(), delay(process.env.REFRESH_INTERVAL_MILLISECONDS)]);
    }
 }
 
 main();
-

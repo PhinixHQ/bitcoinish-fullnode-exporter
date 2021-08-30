@@ -5,9 +5,9 @@ services:
     restart: unless-stopped
     environment: 
       REFRESH_INTERVAL_MILLISECONDS: "60000"
-      BITCOINISH_FULLNODE_BASE_URL:
+      FULLNODE_BASE_URL:
       JSON_RPC_TOKEN:
-      BITCOINISH_SCAN_BASE_URL:
+      GLOBAL_BLOCKBOOK_ENDPOINT:
       COIN_NAME:
     ports:
       - "9099:9099"

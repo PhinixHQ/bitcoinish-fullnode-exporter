@@ -9,5 +9,4 @@ services:
       JSON_RPC_TOKEN:
       GLOBAL_BLOCKBOOK_ENDPOINT:
       COIN_NAME:
-    ports:
-      - "9099:9099"
+    network_mode: "host"

@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment: 
       REFRESH_INTERVAL_MILLISECONDS: "60000"
+      AXIOS_TIMEOUT: "4000"
       FULLNODE_BASE_URL:
       JSON_RPC_TOKEN:
       GLOBAL_BLOCKBOOK_ENDPOINT:

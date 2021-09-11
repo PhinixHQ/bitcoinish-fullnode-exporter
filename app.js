@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 require('dotenv').config();
 const client = require('prom-client');
+axios.defaults.timeout = parseInt(process.env.AXIOS_TIMEOUT);
 
 // URLs
 const globalBlockbookEndpoint = process.env.GLOBAL_BLOCKBOOK_ENDPOINT
@@ -18,7 +19,10 @@ const fullnodeLastUpdateGauge = new client.Gauge({ name: 'fullnode_last_update_s
 // get the latest global blockbook block number
 async function updateGlobalBlockbookMetrics(){
     try{
+        console.log('starting getgloballatestBlock');
         const latestBlock = await axios.get(globalBlockbookEndpoint, {headers: {'user-agent':'phinix'}});
+        console.log('done getgloballatestBlock');
+        console.log('//////////////////////////');
         const coinName = process.env.COIN_NAME;
         GlobalBlockbookUpGauge.set({ coin: coinName } ,1);
         GlobalBlockbookCurrentBlockGauge.set({ coin: coinName } ,latestBlock.data.backend.blocks);
@@ -26,6 +30,7 @@ async function updateGlobalBlockbookMetrics(){
     }
     catch(err) {
         console.log(err);
+        console.log('error on getgloballatestBlock');
         GlobalBlockbookUpGauge.set({ coin: process.env.COIN_NAME} ,0);
     }
 }
@@ -35,7 +40,10 @@ async function updateFullNodeMetrics(){
     try{
         const bitcoinishAuth = {'Authorization': JsonRpcToken}
         const jsonBody = {"jsonrpc": "1.0", "id": "curltest", "method": "getblockchaininfo", "params": []};
+        console.log('starting getFullNodelatestBlock');
         const FullNOdeLatestBlock = await axios.post(FullNodeUrl,jsonBody, {headers: bitcoinishAuth});
+        console.log('done getFullNodelatestBlock');
+        console.log('/////////////////////////////');
         const coinName = process.env.COIN_NAME;
         fullnodeUpGauge.set({ coin: coinName } ,1);
         fullnodeCurrentBlockGauge.set({ coin: coinName } ,FullNOdeLatestBlock.data.result.blocks);
@@ -43,6 +51,7 @@ async function updateFullNodeMetrics(){
     }
     catch(err){
         console.log(err);
+        console.log('error on getFullNodelatestBlock');
         fullnodeUpGauge.set({ coin: process.env.COIN_NAME } ,0);
     }
 }

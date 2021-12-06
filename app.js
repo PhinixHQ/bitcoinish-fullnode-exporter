@@ -8,7 +8,9 @@ const Sentry = require('@sentry/node');
 
 // Sentry
 Sentry.init({ dsn: process.env.SENTRY_DSN });
-
+Sentry.configureScope(scope => {
+    scope.setTag('coin', process.env.COIN_NAME);
+  });
 // URLs
 const globalBlockbookEndpoint = process.env.GLOBAL_BLOCKBOOK_ENDPOINT
 const FullNodeUrl = process.env.FULLNODE_BASE_URL

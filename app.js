@@ -4,6 +4,10 @@ const app = express();
 require('dotenv').config();
 const client = require('prom-client');
 axios.defaults.timeout = parseInt(process.env.AXIOS_TIMEOUT);
+const Sentry = require('@sentry/node');
+
+// Sentry
+Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 // URLs
 const globalBlockbookEndpoint = process.env.GLOBAL_BLOCKBOOK_ENDPOINT
@@ -29,6 +33,7 @@ async function updateGlobalBlockbookMetrics(){
         GlobalBlockbookLastUpdateGauge.set({ coin: coinName } ,Math.floor(Date.now() / 1000));
     }
     catch(err) {
+        Sentry.captureException(err);
         console.log(err);
         console.log('error on getgloballatestBlock');
         GlobalBlockbookUpGauge.set({ coin: process.env.COIN_NAME} ,0);
@@ -50,6 +55,7 @@ async function updateFullNodeMetrics(){
         fullnodeLastUpdateGauge.set({ coin: coinName } ,Math.floor(Date.now() / 1000));
     }
     catch(err){
+        Sentry.captureException(err);
         console.log(err);
         console.log('error on getFullNodelatestBlock');
         fullnodeUpGauge.set({ coin: process.env.COIN_NAME } ,0);

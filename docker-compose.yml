@@ -11,4 +11,5 @@ services:
       GLOBAL_BLOCKBOOK_ENDPOINT:
       COIN_NAME:
       SENTRY_DSN:
+      SCOPE:
     network_mode: "host"

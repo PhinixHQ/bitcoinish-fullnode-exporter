@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require('axios-https-proxy-fix');
 const express = require('express');
 const app = express();
 require('dotenv').config();
@@ -26,8 +26,17 @@ const fullnodeLastUpdateGauge = new client.Gauge({ name: 'fullnode_last_update_s
 // get the latest global blockbook block number
 async function updateGlobalBlockbookMetrics(){
     try{
+        const proxy = {
+            host: process.env.HTTP_PROXY_HOST,
+            port: process.env.HTTP_PROXY_PORT,
+            auth: {
+              username: process.env.HTTP_PROXY_USERNAME,
+              password: process.env.HTTP_PROXY_PASSWORD
+            }
+        }
+        const userAgent = process.env.USER_AGENT;
         console.log('starting getgloballatestBlock');
-        const latestBlock = await axios.get(globalBlockbookEndpoint, {headers: {'user-agent':'phinix'}});
+        const latestBlock = await axios.get(globalBlockbookEndpoint, {headers: {'user-agent':userAgent}, proxy});
         console.log('done getgloballatestBlock');
         console.log('//////////////////////////');
         const coinName = process.env.COIN_NAME;
